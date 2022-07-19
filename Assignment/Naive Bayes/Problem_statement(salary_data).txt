@@ -1,0 +1,328 @@
+1) Prepare a classification model using Naive Bayes 
+for salary data 
+
+Data Description:
+
+age -- age of a person
+workclass	-- A work class is a grouping of work 
+education	-- Education of an individuals	
+maritalstatus -- Marital status of an individulas	
+occupation	 -- occupation of an individuals
+relationship -- 	
+race --  Race of an Individual
+sex --  Gender of an Individual
+capitalgain --  profit received from the sale of an investment	
+capitalloss	-- A decrease in the value of a capital asset
+hoursperweek -- number of hours work per week	
+native -- Native of an individual
+Salary -- salary of an individual
+
+ANS :
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+import os
+import warnings
+warnings.filterwarnings('ignore')
+
+salarydata_train = pd.read_csv('D:\\excler\\Assignment\\re\\Naive Bayes\\SalaryData_Train.csv')
+salarydata_train.head()
+
+salarydata_test = pd.read_csv('D:\\excler\\Assignment\\re\\Naive Bayes\\SalaryData_Test.csv')
+salarydata_test.head()
+
+salarydata_train.shape
+
+salarydata_test.shape
+
+salarydata_train.info()
+
+salarydata_train.describe()
+
+salarydata_test.info()
+
+salarydata_test.describe()
+
+salarydata_train.isin(['?']).sum(axis=0)
+
+salarydata_test.isin(['?']).sum(axis=0)
+
+print(salarydata_train[0:5])
+
+categorical = [var for var in salarydata_train.columns if salarydata_train[var].dtype=='O']
+
+print('There are {} categorical variables\n'.format(len(categorical)))
+
+print('The categorical variables are :\n\n', categorical)
+
+salarydata_train[categorical].head()
+
+salarydata_train[categorical].isnull().sum()
+
+for var in categorical: 
+    
+    print(salarydata_train[var].value_counts())
+
+for var in categorical: 
+    
+    print(salarydata_train[var].value_counts()/np.float(len(salarydata_train)))
+
+salarydata_train.workclass.unique()
+
+salarydata_train.workclass.value_counts()
+
+salarydata_train.occupation.unique()
+
+salarydata_train.occupation.value_counts()
+
+salarydata_train.native.unique()
+
+salarydata_train.native.value_counts()
+
+for var in categorical:
+    
+    print(var, ' contains ', len(salarydata_train[var].unique()), ' labels')
+
+numerical = [var for var in salarydata_train.columns if salarydata_train[var].dtype!='O']
+
+print('There are {} numerical variables\n'.format(len(numerical)))
+
+print('The numerical variables are :', numerical)
+
+salarydata_train[numerical].head()
+
+salarydata_train[numerical].isnull().sum()
+
+X = salarydata_train.drop(['Salary'], axis=1)
+
+y = salarydata_train['Salary']
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 0)
+
+X_train.shape, X_test.shape
+
+X_train.dtypes
+
+X_test.dtypes
+
+categorical = [col for col in X_train.columns if X_train[col].dtypes == 'O']
+
+categorical
+
+numerical = [col for col in X_train.columns if X_train[col].dtypes != 'O']
+
+numerical
+
+X_train[categorical].isnull().mean()
+
+for col in categorical:
+    if X_train[col].isnull().mean()>0:
+        print(col, (X_train[col].isnull().mean()))
+
+for df2 in [X_train, X_test]:
+    df2['workclass'].fillna(X_train['workclass'].mode()[0], inplace=True)
+    df2['occupation'].fillna(X_train['occupation'].mode()[0], inplace=True)
+    df2['native'].fillna(X_train['native'].mode()[0], inplace=True)
+
+X_train[categorical].isnull().sum()
+
+X_test[categorical].isnull().sum()
+
+X_train.isnull().sum()
+
+X_test.isnull().sum()
+
+categorical
+
+X_train[categorical].head()
+
+pip install category_encoders
+
+import category_encoders as ce
+
+encoder = ce.OneHotEncoder(cols=['workclass', 'education', 'maritalstatus', 'occupation', 'relationship', 
+                                 'race', 'sex', 'native'])
+
+X_train = encoder.fit_transform(X_train)
+
+X_test = encoder.transform(X_test)
+
+X_train.head()
+
+X_train.shape
+
+X_test.head()
+
+X_test.shape
+
+cols = X_train.columns
+
+from sklearn.preprocessing import RobustScaler
+
+scaler = RobustScaler()
+
+X_train = scaler.fit_transform(X_train)
+
+X_test = scaler.transform(X_test)
+
+X_train = pd.DataFrame(X_train, columns=[cols])
+
+X_test = pd.DataFrame(X_test, columns=[cols])
+
+X_train.head()
+
+from sklearn.naive_bayes import GaussianNB
+
+gnb = GaussianNB()
+
+gnb.fit(X_train, y_train)
+
+y_pred = gnb.predict(X_test)
+
+y_pred
+
+from sklearn.metrics import accuracy_score
+
+print('Model accuracy score: {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
+
+y_pred_train = gnb.predict(X_train)
+
+y_pred_train
+
+print('Training-set accuracy score: {0:0.4f}'. format(accuracy_score(y_train, y_pred_train)))
+
+print('Training set score: {:.4f}'.format(gnb.score(X_train, y_train)))
+
+print('Test set score: {:.4f}'.format(gnb.score(X_test, y_test)))
+
+y_test.value_counts()
+
+null_accuracy = (7407/(7407+2362))
+
+print('Null accuracy score: {0:0.4f}'. format(null_accuracy))
+
+from sklearn.metrics import confusion_matrix
+
+cm = confusion_matrix(y_test, y_pred)
+
+print('Confusion matrix\n\n', cm)
+
+print('\nTrue Positives(TP) = ', cm[0,0])
+
+print('\nTrue Negatives(TN) = ', cm[1,1])
+
+print('\nFalse Positives(FP) = ', cm[0,1])
+
+print('\nFalse Negatives(FN) = ', cm[1,0])
+
+cm_matrix = pd.DataFrame(data=cm, columns=['Actual Positive:1', 'Actual Negative:0'], 
+                                 index=['Predict Positive:1', 'Predict Negative:0'])
+
+sns.heatmap(cm_matrix, annot=True, fmt='d', cmap='YlGnBu')
+
+from sklearn.metrics import classification_report
+
+print(classification_report(y_test, y_pred))
+
+TP = cm[0,0]
+TN = cm[1,1]
+FP = cm[0,1]
+FN = cm[1,0]
+
+classification_accuracy = (TP + TN) / float(TP + TN + FP + FN)
+
+print('Classification accuracy : {0:0.4f}'.format(classification_accuracy))
+
+classification_error = (FP + FN) / float(TP + TN + FP + FN)
+
+print('Classification error : {0:0.4f}'.format(classification_error))
+
+precision = TP / float(TP + FP)
+
+
+print('Precision : {0:0.4f}'.format(precision))
+
+recall = TP / float(TP + FN)
+
+print('Recall or Sensitivity : {0:0.4f}'.format(recall))
+
+true_positive_rate = TP / float(TP + FN)
+
+
+print('True Positive Rate : {0:0.4f}'.format(true_positive_rate))
+
+false_positive_rate = FP / float(FP + TN)
+
+
+print('False Positive Rate : {0:0.4f}'.format(false_positive_rate))
+
+specificity = TN / (TN + FP)
+
+print('Specificity : {0:0.4f}'.format(specificity))
+
+y_pred_prob = gnb.predict_proba(X_test)[0:10]
+
+y_pred_prob
+
+y_pred_prob_df = pd.DataFrame(data=y_pred_prob, columns=['Prob of - <=50K', 'Prob of - >50K'])
+
+y_pred_prob_df
+
+gnb.predict_proba(X_test)[0:10, 1]
+
+y_pred1 = gnb.predict_proba(X_test)[:, 1]
+
+plt.rcParams['font.size'] = 12
+
+plt.hist(y_pred1, bins = 10)
+
+plt.title('Histogram of predicted probabilities of salaries >50K')
+
+plt.xlim(0,1)
+
+plt.xlabel('Predicted probabilities of salaries >50K')
+plt.ylabel('Frequency')
+
+from sklearn.metrics import roc_curve
+
+fpr, tpr, thresholds = roc_curve(y_test, y_pred1, pos_label = '>50K')
+
+plt.figure(figsize=(6,4))
+
+plt.plot(fpr, tpr, linewidth=2)
+
+plt.plot([0,1], [0,1], 'k--' )
+
+plt.rcParams['font.size'] = 12
+
+plt.title('ROC curve for Gaussian Naive Bayes Classifier for Predicting Salaries')
+
+plt.xlabel('False Positive Rate (1 - Specificity)')
+
+plt.ylabel('True Positive Rate (Sensitivity)')
+
+plt.show()
+
+from sklearn.metrics import roc_auc_score
+
+ROC_AUC = roc_auc_score(y_test, y_pred1)
+
+print('ROC AUC : {:.4f}'.format(ROC_AUC))
+
+from sklearn.model_selection import cross_val_score
+
+Cross_validated_ROC_AUC = cross_val_score(gnb, X_train, y_train, cv=5, scoring='roc_auc').mean()
+
+print('Cross validated ROC AUC : {:.4f}'.format(Cross_validated_ROC_AUC))
+
+from sklearn.model_selection import cross_val_score
+
+scores = cross_val_score(gnb, X_train, y_train, cv = 10, scoring='accuracy')
+
+print('Cross-validation scores:{}'.format(scores))
+
+print('Average cross-validation score: {:.4f}'.format(scores.mean()))

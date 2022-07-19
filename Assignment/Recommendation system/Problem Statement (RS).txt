@@ -1,0 +1,62 @@
+Problem statement.
+
+Build a recommender system by using cosine simillarties score.
+
+ANS :
+import pandas as pd
+import numpy as np
+
+book=pd.read_csv('book.csv',encoding='latin')
+book
+
+book.sort_values('User.ID')
+
+book_df=book.rename({'User.ID':'userId','Book.Title':'Title','Book.Rating':'Rating'},axis=1)
+
+len(book_df.userId.unique())
+
+len(book_df.Title.unique())
+
+book_df['Rating'].value_counts().sort_index()
+
+book_df.Title.value_counts()
+
+df=book_df.pivot_table(index='userId',columns='Title',values='Rating')
+
+df
+
+df.fillna(0, inplace=True)
+
+df
+
+from sklearn.metrics import pairwise_distances
+from scipy.spatial.distance import cosine, correlation
+
+user_book = 1 - pairwise_distances( df.values,metric='cosine')
+user_book
+
+user_book_df = pd.DataFrame(user_book)
+user_book_df
+
+user_book_df.index = book_df.userId.unique()
+user_book_df.columns = book_df.userId.unique()
+
+user_book_df.iloc[0:5, 0:5]
+
+np.fill_diagonal(user_book, 0)
+user_book_df.iloc[0:5, 0:5]
+
+user_book_df.idxmax(axis=1)[0:5]
+
+book_df[(book_df['userId']==276729) | (book_df['userId']==276726)]
+
+user_1=book_df[book_df['userId']==276729]
+
+user_2=book_df[book_df['userId']==276726]
+
+user_1.Title
+
+user_2.Title
+
+pd.merge(user_1,user_2,on='Title',how='outer')
+

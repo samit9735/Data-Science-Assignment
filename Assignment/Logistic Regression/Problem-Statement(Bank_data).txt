@@ -1,0 +1,64 @@
+Output variable -> y
+y -> Whether the client has subscribed a term deposit or not 
+Binomial ("yes" or "no")
+
+ANS : import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+
+bank = pd.read_csv("D:\\excler\\Assignment\\Logistic Regression\\bank-full.csv",sep=';')
+bank.head()
+
+bank.describe
+
+bank.info()
+
+bank1=bank.drop(['contact', 'poutcome'], axis=1)
+bank1
+
+bank1['default'] = np.where(bank1['default'].str.contains("yes"), 1, 0)
+bank1['housing'] = np.where(bank1['housing'].str.contains("yes"), 1, 0)
+bank1['loan'] = np.where(bank1['loan'].str.contains("yes"), 1, 0)
+bank1['y'] = np.where(bank1['y'].str.contains("yes"), 1, 0)
+bank1
+
+x = bank1.iloc[:,:14]
+y = bank1.iloc[:,14]
+
+x = pd.get_dummies(x)
+x.head()
+
+x.info()
+
+classifier = LogisticRegression()
+classifier.fit(x,y)
+
+y_pred = classifier.predict(x)
+y_pred
+
+y_pred_df= pd.DataFrame({'actual': y, 'predicted_prob': classifier.predict(x)})
+y_pred_df
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix = confusion_matrix(y,y_pred)
+print (confusion_matrix)
+
+((39183+1039)/(39183+739+4250+1039))*100
+
+from sklearn.metrics import classification_report
+print(classification_report(y,y_pred))
+
+from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
+
+fpr, tpr, thresholds = roc_curve(y, classifier.predict_proba (x)[:,1])
+
+auc = roc_auc_score(y, y_pred)
+
+import matplotlib.pyplot as plt
+plt.plot(fpr, tpr, color='red', label='logit model ( area  = %0.2f)'%auc)
+plt.plot([0, 1], [0, 1], 'k--')
+plt.xlabel('False Positive Rate or [1 - True Negative Rate]')
+plt.ylabel('True Positive Rate')
+

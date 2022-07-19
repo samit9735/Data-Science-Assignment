@@ -1,0 +1,55 @@
+Implement a KNN model to classify the animals in to categorie
+
+
+ANS : 
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+import seaborn as sns 
+import warnings 
+warnings.filterwarnings("ignore")
+
+animal = pd.read_csv('D:\\excler\\Assignment\\KNN\\Zoo.csv')
+animal.head()
+
+animal.info()
+
+animal.describe()
+
+animal.isnull().sum()
+
+duplicates = animal.animal_name.value_counts()
+duplicates[duplicates > 1]
+
+frog = animal.loc[animal['animal_name'] == 'frog']
+frog
+
+animal['animal_name'][(animal.venomous == 1 )& (animal.animal_name == 'frog')] = "frog2"
+
+color_list = [("red" if i == 1 else "blue" if i == 0 else "yellow" ) for i in animal.hair]
+unique_color = list(set(color_list))
+unique_color
+
+pd.plotting.scatter_matrix(animal.iloc[:,:7],
+                                       c=color_list,
+                                       figsize= [20,20],
+                                       diagonal='hist',
+                                       alpha=1,
+                                       s = 300,
+                                       marker = '.',
+                                       edgecolor= "black")
+plt.show()
+
+sns.countplot(x="hair", data=animal)
+plt.xlabel("Hair")
+plt.ylabel("Count")
+plt.show()
+animal.loc[:,'hair'].value_counts()
+
+type_list = [i for i in animal.type]
+unique_type = list(set(type_list))
+unique_type
+
+sns.factorplot('type', data=animal, kind="count",size = 5,aspect = 2)
+

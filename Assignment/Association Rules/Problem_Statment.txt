@@ -1,0 +1,52 @@
+Prepare rules for the all the data sets 
+1) Try different values of support and confidence. Observe the change in number of rules for different support,confidence values
+2) Change the minimum length in apriori algorithm
+3) Visulize the obtained rules using different plots 
+
+BOOK.CSV--> ANS :
+
+import pandas as pd 
+from mlxtend.frequent_patterns import apriori,association_rules
+from mlxtend.preprocessing import TransactionEncoder
+
+book=pd.read_csv('D:\\excler\\Assignment\\Association Rules\\book.csv')
+
+book.head()
+
+df=pd.get_dummies(book)
+df.head()
+
+frequent_itemsets = apriori(df, min_support=0.1, use_colnames=True)
+frequent_itemsets
+
+rules = association_rules(frequent_itemsets,  min_threshold=0.1)
+rules.head()
+
+rules.sort_values('lift',ascending = False)[0:20]
+
+rules[rules.lift>1]
+
+
+my_movies--> ANS :
+
+import pandas as pd 
+from mlxtend.frequent_patterns import apriori,association_rules
+from mlxtend.preprocessing import TransactionEncoder
+
+movies=pd.read_csv('D:\\excler\\Assignment\\Association Rules\\my_movies.csv')
+
+movies.head()
+
+df=pd.get_dummies(movies)
+df.head()
+
+frequent_itemsets = apriori(df, min_support=0.1, use_colnames=True)
+frequent_itemsets
+
+rules = association_rules(frequent_itemsets,  min_threshold=0.20)
+rules.head()
+
+rules.sort_values('lift',ascending = False)[0:20]
+
+rules[rules.lift>2]
+
